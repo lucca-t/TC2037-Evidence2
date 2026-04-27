@@ -1,0 +1,129 @@
+--- ORIGINAL GRAMMAR: kato kaj prociono aŭ planto kreskas
+
+(S
+  (NSC_Subj
+    (NSC_Subj
+      (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End o)))
+      (Conj kaj)
+      (NSC_Subj (NS_Subj (N_Root procion) (N_Subj_End o))))
+    (Conj au)
+    (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End o))))
+  (VS (V_Root kresk) (V_End as)))
+
+
+(S
+  (NSC_Subj
+    (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End o)))
+    (Conj kaj)
+    (NSC_Subj
+      (NSC_Subj (NS_Subj (N_Root procion) (N_Subj_End o)))
+      (Conj au)
+      (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End o)))))
+  (VS (V_Root kresk) (V_End as)))
+
+
+Total trees generated (Ambiguity count): 2
+
+
+--- ORIGINAL GRAMMAR: la kato vidas floron kaj procionon aŭ arbon
+
+(S
+  (NSC_Subj (NS_Subj (Det la) (N_Root kat) (N_Subj_End o)))
+  (VS (V_Root vid) (V_End as))
+  (NSC_Obj
+    (NSC_Obj
+      (NSC_Obj (NS_Obj (N_Root flor) (N_Obj_End on)))
+      (Conj kaj)
+      (NSC_Obj (NS_Obj (N_Root procion) (N_Obj_End on))))
+    (Conj au)
+    (NSC_Obj (NS_Obj (N_Root arb) (N_Obj_End on)))))
+
+
+(S
+  (NSC_Subj (NS_Subj (Det la) (N_Root kat) (N_Subj_End o)))
+  (VS (V_Root vid) (V_End as))
+  (NSC_Obj
+    (NSC_Obj (NS_Obj (N_Root flor) (N_Obj_End on)))
+    (Conj kaj)
+    (NSC_Obj
+      (NSC_Obj (NS_Obj (N_Root procion) (N_Obj_End on)))
+      (Conj au)
+      (NSC_Obj (NS_Obj (N_Root arb) (N_Obj_End on))))))
+
+
+Total trees generated (Ambiguity count): 2
+
+
+--- ORIGINAL GRAMMAR: katoj kaj plantoj kaj arboj kreskas
+
+(S
+  (NSC_Subj
+    (NSC_Subj
+      (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End oj)))
+      (Conj kaj)
+      (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End oj))))
+    (Conj kaj)
+    (NSC_Subj (NS_Subj (N_Root arb) (N_Subj_End oj))))
+  (VS (V_Root kresk) (V_End as)))
+
+
+(S
+  (NSC_Subj
+    (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End oj)))
+    (Conj kaj)
+    (NSC_Subj
+      (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End oj)))
+      (Conj kaj)
+      (NSC_Subj (NS_Subj (N_Root arb) (N_Subj_End oj)))))
+  (VS (V_Root kresk) (V_End as)))
+
+
+Total trees generated (Ambiguity count): 2
+
+
+--- CLEANED GRAMMAR: kato kaj prociono aŭ planto kreskas
+
+(S
+  (NSC_Subj
+    (NS_Subj (N_Root kat) (N_Subj_End o))
+    (NSC_Subj_A
+      (Conj kaj)
+      (NS_Subj (N_Root procion) (N_Subj_End o))
+      (NSC_Subj_A (Conj au) (NS_Subj (N_Root plant) (N_Subj_End o)) (NSC_Subj_A (Empty )))))
+  (VS (V_Root kresk) (V_End as)))
+
+
+Total trees generated (Ambiguity count): 1
+
+
+--- CLEANED GRAMMAR: la kato vidas floron kaj procionon aŭ arbon
+
+(S
+  (NSC_Subj (NS_Subj (Det la) (N_Root kat) (N_Subj_End o)) (NSC_Subj_A (Empty )))
+  (VS (V_Root vid) (V_End as))
+  (NSC_Obj
+    (NS_Obj (N_Root flor) (N_Obj_End on))
+    (NSC_Obj_A
+      (Conj kaj)
+      (NS_Obj (N_Root procion) (N_Obj_End on))
+      (NSC_Obj_A (Conj au) (NS_Obj (N_Root arb) (N_Obj_End on)) (NSC_Obj_A (Empty ))))))
+
+
+Total trees generated (Ambiguity count): 1
+
+
+--- CLEANED GRAMMAR: katoj kaj plantoj kaj arboj kreskas
+
+(S
+  (NSC_Subj
+    (NS_Subj (N_Root kat) (N_Subj_End oj))
+    (NSC_Subj_A
+      (Conj kaj)
+      (NS_Subj (N_Root plant) (N_Subj_End oj))
+      (NSC_Subj_A (Conj kaj) (NS_Subj (N_Root arb) (N_Subj_End oj)) (NSC_Subj_A (Empty )))))
+  (VS (V_Root kresk) (V_End as)))
+
+
+Total trees generated (Ambiguity count): 1
+
+
