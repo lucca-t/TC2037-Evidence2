@@ -92,7 +92,27 @@ Rule summary:
 
 ## Eliminating Ambiguity
 
-My original coordination rules were ambiguous because the same sequence of conjunctions could be grouped in more than one way. For example, a phrase like `kato kaj prociono aŭ planto` could produce different trees depending on whether I grouped the first conjunction or the second one first.
+My original coordination rules were ambiguous because the same sequence of conjunctions could be grouped in more than one way. For example, a phrase like `kato kaj prociono au planto` could produce different trees depending on whether I grouped the first conjunction or the second one first.
+
+Step-by-step ambiguity removal:
+
+1. **Start with the ambiguous rules** that allow coordination to recurse on both sides:
+   - `NSC_Subj -> NSC_Subj Conj NSC_Subj | NS_Subj`
+   - `NSC_Obj -> NSC_Obj Conj NSC_Obj | NS_Obj`
+2. **Pick a sentence with two conjunctions** so grouping choices are visible:
+   - `kato kaj prociono au planto`
+3. **Show the two possible groupings** that both satisfy the original rules:
+   - `(kato kaj prociono) au planto`
+   - `kato kaj (prociono au planto)`
+4. **Observe that both groupings parse**, which yields two distinct trees (shown below in the original grammar output).
+5. **Introduce a right-recursive list** with a tail symbol so the parser always expands in one direction:
+   - `NSC_Subj -> NS_Subj NSC_Subj_A`
+   - `NSC_Subj_A -> Conj NS_Subj NSC_Subj_A | Empty`
+6. **Verify the single derivation path** with the new rules (one canonical grouping):
+   - `NSC_Subj => NS_Subj NSC_Subj_A`
+   - `=> kat o (Conj NS_Subj NSC_Subj_A)`
+   - `=> kat o kaj procion o (Conj NS_Subj NSC_Subj_A)`
+   - `=> kat o kaj procion o au plant o (Empty)`
 
 To remove that ambiguity, I changed the coordination part into a single list structure with an auxiliary tail symbol. That way, I only allow one right-branching tree for each coordinated sequence:
 
@@ -107,7 +127,7 @@ NSC_Obj_A -> Conj NS_Obj NSC_Obj_A | Empty
 This yields a single canonical structure for coordination and removes multiple parse trees.
 
 ```
-Parsing: 'kato kaj prociono aŭ planto kreskas'
+Parsing: 'kato kaj prociono au planto kreskas'
 ----------------------------------------
                                                           S                                                      
                                         __________________|______________________________________________         
@@ -121,7 +141,7 @@ Parsing: 'kato kaj prociono aŭ planto kreskas'
    _______|_________          |         ________|_________        |      _______|_________          _____|____    
 N_Root          N_Subj_End   Conj    N_Root           N_Subj_End Conj N_Root          N_Subj_End V_Root     V_End
   |                 |         |        |                  |       |     |                 |        |          |   
- kat                o        kaj    procion               o       aŭ  plant               o      kresk        as 
+ kat                o        kaj    procion               o       au  plant               o      kresk        as 
 ```
 ```
                                                       S                                                          
@@ -136,7 +156,7 @@ N_Root          N_Subj_End   Conj    N_Root           N_Subj_End Conj N_Root    
    _______|_________        |       ________|_________          |        _______|_________          _____|____    
 N_Root          N_Subj_End Conj  N_Root           N_Subj_End   Conj   N_Root          N_Subj_End V_Root     V_End
   |                 |       |      |                  |         |       |                 |        |          |   
- kat                o      kaj  procion               o         aŭ    plant               o      kresk        as 
+ kat                o      kaj  procion               o         au    plant               o      kresk        as 
 
 Total trees generated (Ambiguity count): 2
 ```
@@ -152,11 +172,24 @@ NSC_Obj -> NSC_Obj Conj NSC_Obj | NS_Obj
 
 This is a problem for top-down parsing because the parser can keep expanding the same nonterminal on the left and never reach a terminal string.
 
-To clean the grammar, I rewrote the recursive structure into a right-recursive list form. I used the same idea as standard left-recursion removal:
+To clean the grammar, I rewrote the recursive structure into a right-recursive list form using the standard left-recursion removal pattern.
 
-1. Keep the base phrase without recursion.
-2. Add a new auxiliary nonterminal for the repeated part.
-3. Let the auxiliary symbol repeat the conjunction pattern or end with an empty production.
+Step-by-step left recursion removal (subject case shown; object case is identical):
+
+1. Start with the left-recursive rule:
+   - `NSC_Subj -> NSC_Subj Conj NSC_Subj | NS_Subj`
+2. Match it to the generic pattern $A -> A\alpha | \beta$:
+   - $A = NSC_Subj$
+   - $\alpha = Conj\ NSC_Subj$
+   - $\beta = NS_Subj$
+3. Introduce a new tail nonterminal $A'$ to hold repetitions:
+   - `NSC_Subj_A`
+4. Rewrite using the standard transformation:
+   - `NSC_Subj -> NS_Subj NSC_Subj_A`
+   - `NSC_Subj_A -> Conj NS_Subj NSC_Subj_A | Empty`
+5. Apply the same transformation to the object rule:
+   - `NSC_Obj -> NS_Obj NSC_Obj_A`
+   - `NSC_Obj_A -> Conj NS_Obj NSC_Obj_A | Empty`
 
 The cleaned rules become:
 
@@ -168,7 +201,7 @@ NSC_Obj -> NS_Obj NSC_Obj_A
 NSC_Obj_A -> Conj NS_Obj NSC_Obj_A | Empty
 ```
 
-This removes direct left recursion and keeps the same one-tree structure for coordination. For example, `kato kaj prociono aŭ planto` is now parsed as `kato kaj (prociono aŭ planto)`.
+This removes direct left recursion and keeps the same one-tree structure for coordination. For example, `kato kaj prociono au planto` is now parsed as `kato kaj (prociono au planto)`.
 
 My cleaned implementation keeps the same lexical vocabulary and verb structure, but it no longer loops on the left when parsing conjunction chains.
 
