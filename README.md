@@ -11,10 +11,10 @@ I use a small subset of Esperanto.
 
 ### Language Structure
 
-Its regular morphology suits context-free grammar modeling. Esperanto has a highly regular, agglutinative morphology. This means that words are made up of combining roots with specific suffixes to indicate certain meaning. This affects the part of speech, number, and case. To keep the Context-Free grammar manageable for this project, the scope is narrowed to analyze basic present-tense verbs, and the noun case system. 
+Its regular morphology suits context-free grammar modeling. Esperanto has a highly regular, agglutinative morphology. This means that words are made up of combining roots with specific suffixes to indicate certain meaning. This affects the part of speech, number, and case. To keep the Context-Free grammar manageable for this project, the scope is narrowed to analyze basic present-tense verbs, and the noun case system.
 
 #### Noun Rules:
-All nounds end with `-o`. To form different meaning, suffixes are then glued to the end of the word with strict rules.
+All nounds end with `-o`. To form different meaning, suffixes are then glued to the end of the word with strict rules (Harlow, 1995).
 
 1. **Base:** The root plus `-o` forms a singular subject. `kat` + `o` = `kato` (cat).
 2. **Plurality:** Adding `-j` makes the noun plural. `kato` + `j` = `katoj` (cats).
@@ -25,12 +25,12 @@ All nounds end with `-o`. To form different meaning, suffixes are then glued to 
 Because of this `-n` ending, a sentence like `la kato vidas floron` (the cat sees the flower) is mathematically distinct from `la katon vidas floro` (the flower sees the cat). My grammar model explicitly separates these nominative (o, oj) and accusative (on, ojn) endings to ensure the parser correctly identifies the subject and object of transitive verbs.
 
 #### Verb Rules:
-Unlike English or Spanish, Esperanto verbs are completely regular and do not changes based on the subject. The verb ending strictly dictates the tense of the action. To maintain the project's scope, only verbs with present tense are modeled. 
+Unlike English or Spanish, Esperanto verbs are completely regular and do not changes based on the subject. The verb ending strictly dictates the tense of the action. To maintain the project's scope, only verbs with present tense are modeled (Harlow, 1995) 
    - **Present Tense:** All present-tense verbs are formed by attaching the suffix `-as` to the verb root.
    - **Example:** The root `kresk` (grow) combined with `-as` becomes `krekas` (grows/ is growing). Regardless of the subject's tense, singular (`la kato kreskas`) or plural (`katoj kreskas`), the verb form stays the same and simplifies the rules for verb sequences.
 
 ### Conjunctions: 
-Conjunctions in Esperante are the same as English for linking words or phrases together. In this project two are used:
+Conjunctions in Esperanto are the same as English for linking words or phrases together. In this project two are used:
 - `kaj` = and
 - `aŭ` = or
 
@@ -458,6 +458,8 @@ Devopedia. 2021. "Chomsky Hierarchy." Version 9, June 28. Accessed 2024-06-25. h
 GeeksforGeeks. (2019, February 27). Construction of LL(1) parsing table. GeeksforGeeks. https://www.geeksforgeeks.org/compiler-design/construction-of-ll1-parsing-table/
 
 GeeksforGeeks. (2020, June 19). CYK algorithm for context free grammar. GeeksforGeeks. https://www.geeksforgeeks.org/theory-of-computation/cyk-algorithm-for-context-free-grammar/
+
+Harlow, D. J. (1995, September 11). The sixteen rules of esperanto grammar. UC Santa Cruz. https://babel.ucsc.edu/~hank/105/Esperanto16.pdf
 
 Manero, A. (2022, December 15). How Esperanto started and developed - The history of a new international language. Europeana. https://www.europeana.eu/en/stories/how-esperanto-started-and-developed
 
