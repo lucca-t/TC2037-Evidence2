@@ -5,9 +5,37 @@
 
 ---
 ## Description
+Esperanto is the most widely spoken constructed language in the world. It was initially proposed in 1887 with the hopes of becoming the world's international auxiliary language to be able to unite the world with a common tongue (Manero, 2022). It was designed to be simple and easy to learn from the start which is partly why I chose it. The grammar is simple, no verbs are irregular and all spelling is phonetic. Its popularity declined as English grew to become the defacto second language accross the world.
+
 I use a small subset of Esperanto.
 
-Its regular morphology suits context-free grammar modeling. The project models simple noun phrases, verbs, and conjunctions.
+### Language Structure
+
+Its regular morphology suits context-free grammar modeling. Esperanto has a highly regular, agglutinative morphology. This means that words are made up of combining roots with specific suffixes to indicate certain meaning. This affects the part of speech, number, and case. To keep the Context-Free grammar manageable for this project, the scope is narrowed to analyze basic present-tense verbs, and the noun case system. 
+
+#### Noun Rules:
+All nounds end with `-o`. To form different meaning, suffixes are then glued to the end of the word with strict rules.
+
+1. **Base:** The root plus `-o` forms a singular subject. `kat` + `o` = `kato` (cat).
+2. **Plurality:** Adding `-j` makes the noun plural. `kato` + `j` = `katoj` (cats).
+2. **Accusative Case:** Adding `-n` makes the noun the subject for both singular and plural without having to debend on word order like in English. 
+   - Singular Object `kato` + `n` = `katon`
+   - Plural Object `katoj` + `n` = `katojn`
+
+Because of this `-n` ending, a sentence like `la kato vidas floron` (the cat sees the flower) is mathematically distinct from `la katon vidas floro` (the flower sees the cat). My grammar model explicitly separates these nominative (o, oj) and accusative (on, ojn) endings to ensure the parser correctly identifies the subject and object of transitive verbs.
+
+#### Verb Rules:
+Unlike English or Spanish, Esperanto verbs are completely regular and do not changes based on the subject. The verb ending strictly dictates the tense of the action. To maintain the project's scope, only verbs with present tense are modeled. 
+   - **Present Tense:** All present-tense verbs are formed by attaching the suffix `-as` to the verb root.
+   - **Example:** The root `kresk` (grow) combined with `-as` becomes `krekas` (grows/ is growing). Regardless of the subject's tense, singular (`la kato kreskas`) or plural (`katoj kreskas`), the verb form stays the same and simplifies the rules for verb sequences.
+
+### Conjunctions: 
+Conjunctions in Esperante are the same as English for linking words or phrases together. In this project two are used:
+- `kaj` = and
+- `aŭ` = or
+
+While on paper these are the simplest to add, the complexity they add with its possibility for adding ambiguity and recursive chaining is the most computationally complex. 
+
 
 I modeled the following linguistic context:
 
@@ -82,7 +110,7 @@ Conj -> 'kaj' | 'aŭ'
 
 Rule summary:
 
-- `S` generates either a subject + verb + object sentence or a subject + verb sentence.
+- `S` A complete sentences must contain a complex subject phrase and a verb sequence, and it can ooptionally take a complex object phrase. 
 - `NSC_Subj` and `NSC_Obj` let me chain conjunctions in subject or object position.
 - `NS_Subj` and `NS_Obj` generate noun phrases with or without a determiner.
 - `N_Subj_End` encodes nominative number (`o`, `oj`).
@@ -92,7 +120,42 @@ Rule summary:
 
 ## Eliminating Ambiguity
 
-My original coordination rules were ambiguous because the same sequence of conjunctions could be grouped in more than one way. For example, a phrase like `kato kaj prociono au planto` could produce different trees depending on whether I grouped the first conjunction or the second one first.
+My original coordination rules were ambiguous because the same sequence of conjunctions could be grouped in more than one way. For example, a phrase like `kato kaj prociono aŭ planto kreskas` (cat and raccoon or plant grow) could produce different trees depending on whether I grouped the first conjunction or the second one first.
+
+```
+--- ORIGINAL GRAMMAR: kato kaj prociono aŭ planto kreskas (cat and procion or plant grow )
+
+
+                                                          S                                                      
+                                        __________________|______________________________________________         
+                                    NSC_Subj                                                             |       
+                               ________|________________________________________                         |        
+                           NSC_Subj                               |             |                        |       
+           ___________________|_________________                  |             |                        |        
+       NSC_Subj               |              NSC_Subj             |          NSC_Subj                    |       
+          |                   |                 |                 |             |                        |        
+       NS_Subj                |              NS_Subj              |          NS_Subj                     VS      
+   _______|_________          |         ________|_________        |      _______|_________          _____|____    
+N_Root          N_Subj_End   Conj    N_Root           N_Subj_End Conj N_Root          N_Subj_End V_Root     V_End
+  |                 |         |        |                  |       |     |                 |        |          |   
+ kat                o        kaj    procion               o       au  plant               o      kresk        as 
+
+
+                                                      S                                                          
+                                    __________________|__________________________________________________         
+                                NSC_Subj                                                                 |       
+           ________________________|____________________________                                         |        
+          |                 |                                NSC_Subj                                    |       
+          |                 |                ___________________|_______________                         |        
+       NSC_Subj             |            NSC_Subj               |            NSC_Subj                    |       
+          |                 |               |                   |               |                        |        
+       NS_Subj              |            NS_Subj                |            NS_Subj                     VS      
+   _______|_________        |       ________|_________          |        _______|_________          _____|____    
+N_Root          N_Subj_End Conj  N_Root           N_Subj_End   Conj   N_Root          N_Subj_End V_Root     V_End
+  |                 |       |      |                  |         |       |                 |        |          |   
+ kat                o      kaj  procion               o         au    plant               o      kresk        as 
+
+```
 
 Step-by-step ambiguity removal:
 
@@ -100,10 +163,10 @@ Step-by-step ambiguity removal:
    - `NSC_Subj -> NSC_Subj Conj NSC_Subj | NS_Subj`
    - `NSC_Obj -> NSC_Obj Conj NSC_Obj | NS_Obj`
 2. **Pick a sentence with two conjunctions** so grouping choices are visible:
-   - `kato kaj prociono au planto`
+   - `kato kaj prociono aŭ planto kreskas`
 3. **Show the two possible groupings** that both satisfy the original rules:
-   - `(kato kaj prociono) au planto`
-   - `kato kaj (prociono au planto)`
+   - `(kato kaj prociono) au planto kreskas`
+   - `kato kaj (prociono au planto kreskas)`
 4. **Observe that both groupings parse**, which yields two distinct trees (shown below in the original grammar output).
 5. **Introduce a right-recursive list** with a tail symbol so the parser always expands in one direction:
    - `NSC_Subj -> NS_Subj NSC_Subj_A`
@@ -125,41 +188,6 @@ NSC_Obj_A -> Conj NS_Obj NSC_Obj_A | Empty
 ```
 
 This yields a single canonical structure for coordination and removes multiple parse trees.
-
-```
-Parsing: 'kato kaj prociono au planto kreskas'
-----------------------------------------
-                                                          S                                                      
-                                        __________________|______________________________________________         
-                                    NSC_Subj                                                             |       
-                               ________|________________________________________                         |        
-                           NSC_Subj                               |             |                        |       
-           ___________________|_________________                  |             |                        |        
-       NSC_Subj               |              NSC_Subj             |          NSC_Subj                    |       
-          |                   |                 |                 |             |                        |        
-       NS_Subj                |              NS_Subj              |          NS_Subj                     VS      
-   _______|_________          |         ________|_________        |      _______|_________          _____|____    
-N_Root          N_Subj_End   Conj    N_Root           N_Subj_End Conj N_Root          N_Subj_End V_Root     V_End
-  |                 |         |        |                  |       |     |                 |        |          |   
- kat                o        kaj    procion               o       au  plant               o      kresk        as 
-```
-```
-                                                      S                                                          
-                                    __________________|__________________________________________________         
-                                NSC_Subj                                                                 |       
-           ________________________|____________________________                                         |        
-          |                 |                                NSC_Subj                                    |       
-          |                 |                ___________________|_______________                         |        
-       NSC_Subj             |            NSC_Subj               |            NSC_Subj                    |       
-          |                 |               |                   |               |                        |        
-       NS_Subj              |            NS_Subj                |            NS_Subj                     VS      
-   _______|_________        |       ________|_________          |        _______|_________          _____|____    
-N_Root          N_Subj_End Conj  N_Root           N_Subj_End   Conj   N_Root          N_Subj_End V_Root     V_End
-  |                 |       |      |                  |         |       |                 |        |          |   
- kat                o      kaj  procion               o         au    plant               o      kresk        as 
-
-Total trees generated (Ambiguity count): 2
-```
 
 ## Cleaning the Grammar
 
@@ -226,144 +254,13 @@ My cleaned implementation keeps the same lexical vocabulary and verb structure, 
 
 ## Before / After: Parse Trees (implementation evidence)
 
-I generated parse trees for three representative sentences using both the original (ambiguous) grammar and the cleaned grammar. The output below is taken directly from the parser runs I executed in the project virtual environment.
+The generator now prints trees with `tree.pretty_print()`, so the evidence appears in the line-style layout instead of parenthesized bracket format. The full regenerated output is stored in [trees_output.txt](trees_output.txt).
 
---- ORIGINAL GRAMMAR: `kato kaj prociono aŭ planto kreskas`
-
-```text
-(S
-   (NSC_Subj
-      (NSC_Subj
-         (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End o)))
-         (Conj kaj)
-         (NSC_Subj (NS_Subj (N_Root procion) (N_Subj_End o))))
-      (Conj au)
-      (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End o))))
-   (VS (V_Root kresk) (V_End as)))
-
-
-(S
-   (NSC_Subj
-      (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End o)))
-      (Conj kaj)
-      (NSC_Subj
-         (NSC_Subj (NS_Subj (N_Root procion) (N_Subj_End o)))
-         (Conj au)
-         (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End o)))))
-   (VS (V_Root kresk) (V_End as)))
-
-
-Total trees generated (Ambiguity count): 2
-```
-
---- CLEANED GRAMMAR: `kato kaj prociono aŭ planto kreskas`
+Sample output:
 
 ```text
-(S
-   (NSC_Subj
-      (NS_Subj (N_Root kat) (N_Subj_End o))
-      (NSC_Subj_A
-         (Conj kaj)
-         (NS_Subj (N_Root procion) (N_Subj_End o))
-         (NSC_Subj_A (Conj au) (NS_Subj (N_Root plant) (N_Subj_End o)) (NSC_Subj_A (Empty )))))
-   (VS (V_Root kresk) (V_End as)))
 
-
-Total trees generated (Ambiguity count): 1
 ```
-
---- ORIGINAL GRAMMAR: `la kato vidas floron kaj procionon aŭ arbon`
-
-```text
-(S
-   (NSC_Subj (NS_Subj (Det la) (N_Root kat) (N_Subj_End o)))
-   (VS (V_Root vid) (V_End as))
-   (NSC_Obj
-      (NSC_Obj
-         (NSC_Obj (NS_Obj (N_Root flor) (N_Obj_End on)))
-         (Conj kaj)
-         (NSC_Obj (NS_Obj (N_Root procion) (N_Obj_End on))))
-      (Conj au)
-      (NSC_Obj (NS_Obj (N_Root arb) (N_Obj_End on)))))
-
-
-(S
-   (NSC_Subj (NS_Subj (Det la) (N_Root kat) (N_Subj_End o)))
-   (VS (V_Root vid) (V_End as))
-   (NSC_Obj
-      (NSC_Obj (NS_Obj (N_Root flor) (N_Obj_End on)))
-      (Conj kaj)
-      (NSC_Obj
-         (NSC_Obj (NS_Obj (N_Root procion) (N_Obj_End on)))
-         (Conj au)
-         (NSC_Obj (NS_Obj (N_Root arb) (N_Obj_End on))))))
-
-
-Total trees generated (Ambiguity count): 2
-```
-
---- CLEANED GRAMMAR: `la kato vidas floron kaj procionon aŭ arbon`
-
-```text
-(S
-   (NSC_Subj (NS_Subj (Det la) (N_Root kat) (N_Subj_End o)) (NSC_Subj_A (Empty )))
-   (VS (V_Root vid) (V_End as))
-   (NSC_Obj
-      (NS_Obj (N_Root flor) (N_Obj_End on))
-      (NSC_Obj_A
-         (Conj kaj)
-         (NS_Obj (N_Root procion) (N_Obj_End on))
-         (NSC_Obj_A (Conj au) (NS_Obj (N_Root arb) (N_Obj_End on)) (NSC_Obj_A (Empty ))))))
-
-
-Total trees generated (Ambiguity count): 1
-```
-
---- ORIGINAL GRAMMAR: `katoj kaj plantoj kaj arboj kreskas`
-
-```text
-(S
-   (NSC_Subj
-      (NSC_Subj
-         (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End oj)))
-         (Conj kaj)
-         (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End oj))))
-      (Conj kaj)
-      (NSC_Subj (NS_Subj (N_Root arb) (N_Subj_End oj))))
-   (VS (V_Root kresk) (V_End as)))
-
-
-(S
-   (NSC_Subj
-      (NSC_Subj (NS_Subj (N_Root kat) (N_Subj_End oj)))
-      (Conj kaj)
-      (NSC_Subj
-         (NSC_Subj (NS_Subj (N_Root plant) (N_Subj_End oj)))
-         (Conj kaj)
-         (NSC_Subj (NS_Subj (N_Root arb) (N_Subj_End oj)))))
-   (VS (V_Root kresk) (V_End as)))
-
-
-Total trees generated (Ambiguity count): 2
-```
-
---- CLEANED GRAMMAR: `katoj kaj plantoj kaj arboj kreskas`
-
-```text
-(S
-   (NSC_Subj
-      (NS_Subj (N_Root kat) (N_Subj_End oj))
-      (NSC_Subj_A
-         (Conj kaj)
-         (NS_Subj (N_Root plant) (N_Subj_End oj))
-         (NSC_Subj_A (Conj kaj) (NS_Subj (N_Root arb) (N_Subj_End oj)) (NSC_Subj_A (Empty )))))
-   (VS (V_Root kresk) (V_End as)))
-
-
-Total trees generated (Ambiguity count): 1
-```
-
-I include raw parser trees and ambiguity counts for verification.
 
 ## Run
 
@@ -384,6 +281,3 @@ python generate_trees.py > trees_output.txt
 
 ## References
 
-- Main grammar and tests: [grammar_test.py](grammar_test.py)
-- Tree generator: [generate_trees.py](generate_trees.py)
-- Saved parser output: [trees_output.txt](trees_output.txt)
