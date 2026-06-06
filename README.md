@@ -238,7 +238,7 @@ My cleaned implementation keeps the same lexical vocabulary and verb structure, 
 ### Asymptotic Analysis
 To analyze a sentence, the input must first pass through a lexical separation phase. In my implementation, the `separate(sentence)` function iterates over each word in the user's string, converts it to lowercase, and matches it against the `_ENDINGS` dictionary to split words into roots and suffixes (e.g., `katojn` becomes `kat` and `ojn`). Because this process requires a single pass over the words in the sentence, the time complexity for tokenization is $O(n)$, where $n$ is the number of words.
 
-Regarding the syntax analysis (parsing), general Context-Free Grammar (CFG) parsers—like the CYK algorithm (GeeksforGeeks 2020) or general chart parsers—run in polynomial time, with a worst-case complexity of $O(n^3)$. However, the steps taken previously to clean the grammar (eliminating ambiguity and removing direct left recursion) ensure that the grammar is deterministic. Because of this cleaning, the grammar qualifies for top-down LL(1) parsing without backtracking. An LL(1) parser can process an input string in linear time, meaning the parsing complexity drops to $O(n)$. Therefore, the combined time complexity for tokenizing and parsing an unambiguous sentence with this grammar is optimal at $O(n)$.
+Regarding the syntax analysis (parsing), general Context-Free Grammar (CFG) parsers—like the CYK algorithm (GeeksforGeeks 2020) or general chart parsers—run in polynomial time, with a worst-case complexity of $O(n^3)$. However, the steps taken previously to clean the grammar (eliminating ambiguity and removing direct left recursion) ensure that the grammar is deterministic. Because of this cleaning, the grammar qualifies for top-down LL(1) parsing without backtracking (GeeksforGeeks, 2019). An LL(1) parser can process an input string in linear time, meaning the parsing complexity drops to $O(n)$. Therefore, the combined time complexity for tokenizing and parsing an unambiguous sentence with this grammar is optimal at $O(n)$.
 
 ### Chomsky hierarchy (before / after)
 - Before cleaning: the grammar is Context-Free (Type-2). Ambiguity and left recursion do not change its Chomsky level (Devopedia 2022).
@@ -454,6 +454,8 @@ That script prints the trees generated from the original and corrected grammar.
 ## References
 
 Devopedia. 2021. "Chomsky Hierarchy." Version 9, June 28. Accessed 2024-06-25. https://devopedia.org/chomsky-hierarchy
+
+GeeksforGeeks. (2019, February 27). Construction of LL(1) parsing table. GeeksforGeeks. https://www.geeksforgeeks.org/compiler-design/construction-of-ll1-parsing-table/
 
 GeeksforGeeks. (2020, June 19). CYK algorithm for context free grammar. GeeksforGeeks. https://www.geeksforgeeks.org/theory-of-computation/cyk-algorithm-for-context-free-grammar/
 
