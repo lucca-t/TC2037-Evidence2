@@ -2,7 +2,6 @@ import nltk
 from nltk import CFG
 
 # Grammars
-
 ORIGINAL_GRAMMAR = CFG.fromstring("""
     S -> NSC_Subj VS NSC_Obj | NSC_Subj VS
     NSC_Subj -> NSC_Subj Conj NSC_Subj | NS_Subj
