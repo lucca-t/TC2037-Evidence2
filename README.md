@@ -434,19 +434,18 @@ Total trees generated (Ambiguity count): 1
 
 ## Run
 
-I run the project from the terminal using python:
+Make sure to have nltk installed
 
+### Setup
 ```bash
-python grammar_test.py
+python3 -m pip install nltk
 ```
 
-That script prints the accepted and rejected test results.
-
+### Run scripts
 ```bash
-python generate_trees.py
+python3 grammar_test.py
+python3 generate_trees.py
 ```
-
-That script prints the trees generated from the original and corrected grammar.
 
 
 ## References
