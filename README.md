@@ -434,17 +434,15 @@ Total trees generated (Ambiguity count): 1
 
 ## Run
 
-I run the project from the local virtual environment:
+I run the project from the terminal using python:
 
 ```bash
-source .venv/bin/activate
 python grammar_test.py
 ```
 
 That script prints the accepted and rejected test results.
 
 ```bash
-source .venv/bin/activate
 python generate_trees.py
 ```
 
