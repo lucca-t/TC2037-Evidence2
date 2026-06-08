@@ -3,7 +3,8 @@ from nltk import CFG
 
 # Grammar
 GRAMMAR = CFG.fromstring("""
-    S -> NSC_Subj VS NSC_Obj | NSC_Subj VS
+    S -> NSC_Subj VS S_A
+    S_A -> NSC_Obj | Empty                         
     NSC_Subj   -> NS_Subj NSC_Subj_A
     NSC_Subj_A -> Conj NS_Subj NSC_Subj_A | Empty
     NSC_Obj    -> NS_Obj NSC_Obj_A

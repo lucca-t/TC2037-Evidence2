@@ -27,7 +27,7 @@ Because of this `-n` ending, a sentence like `la kato vidas floron` (the cat see
 #### Verb Rules:
 Unlike English or Spanish, Esperanto verbs are completely regular and do not changes based on the subject. The verb ending strictly dictates the tense of the action. To maintain the project's scope, only verbs with present tense are modeled (Harlow, 1995) 
    - **Present Tense:** All present-tense verbs are formed by attaching the suffix `-as` to the verb root.
-   - **Example:** The root `kresk` (grow) combined with `-as` becomes `krekas` (grows/ is growing). Regardless of the subject's tense, singular (`la kato kreskas`) or plural (`katoj kreskas`), the verb form stays the same and simplifies the rules for verb sequences.
+   - **Example:** The root `kresk` (grow) combined with `-as` becomes `kreskas` (grows/ is growing). Regardless of the subject's tense, singular (`la kato kreskas`) or plural (`katoj kreskas`), the verb form stays the same and simplifies the rules for verb sequences.
 
 ### Conjunctions: 
 Conjunctions in Esperanto are the same as English for linking words or phrases together. In this project two are used:
@@ -110,7 +110,7 @@ Conj -> 'kaj' | 'aŭ'
 
 Rule summary:
 
-- `S` A complete sentences must contain a complex subject phrase and a verb sequence, and it can ooptionally take a complex object phrase. 
+- `S` A complete sentences must contain a complex subject phrase and a verb sequence, and it can optionally take a complex object phrase. 
 - `NSC_Subj` and `NSC_Obj` let me chain conjunctions in subject or object position.
 - `NS_Subj` and `NS_Obj` generate noun phrases with or without a determiner.
 - `N_Subj_End` encodes nominative number (`o`, `oj`).
@@ -230,6 +230,17 @@ NSC_Obj_A -> Conj NS_Obj NSC_Obj_A | Empty
 ```
 
 This removes direct left recursion and keeps the same one-tree structure for coordination. For example, `kato kaj prociono au planto` is now parsed as `kato kaj (prociono au planto)`.
+
+After removing ambiguity and left recursion from coordination, I also discovered a FIRST/FIRST conflict in the sentence rule:
+
+S -> NSC_Subj VS NSC_Obj | NSC_Subj VS
+
+Both productions begin with the same prefix (`NSC_Subj VS`), meaning a predictive parser cannot decide which production to choose using one token of lookahead. While NLTK's chart parser still parses this grammar correctly through backtracking, the grammar is not formally LL(1). Changing the following production fixes this issue.
+
+```text
+S -> NSC_Subj VS S_A
+S_A -> NSC_Obj | Empty
+```
 
 My cleaned implementation keeps the same lexical vocabulary and verb structure, but it no longer loops on the left when parsing conjunction chains.
 
