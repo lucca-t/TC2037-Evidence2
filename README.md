@@ -1,4 +1,4 @@
-# Evidence 2: Implementation of Lexical Analysis
+# Evidence 2: Generating and Cleaning a Restricted Context Free Grammar
 
 **Author:** Lucca Traslosheros Abascal (A01713944)  
 **Course:** TC2037 Implementation of Computational Methods  
